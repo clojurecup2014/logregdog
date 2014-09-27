@@ -65,6 +65,8 @@ All state in the web client is in one map in one atom.
 
 Please let's stick to as few namespaces as possible, as otherwise I get confused. We are not aiming for code beauty here, not making a nicely structured lib.
 
+Please do not make this repository public because my twitter API credentials are in it.
+
 COMPONENTS:
 
 webserver: clojure and clojurescript
