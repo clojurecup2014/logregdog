@@ -51,6 +51,8 @@ When the clojure website is running, it now nicely appears at http://logregdog.c
 
 I did a lot of simplifications to github.com/yogthos/reagent-example, removing libraries we will not be using, but not changing the overall functionality.
 
+I finished the tweetpuller and tweetdeleter. To run them, one needs to create folder "tweets" in the main project folder manually.
+
 DECISIONS:
 
 No state in the web server, all state is in the web client.
@@ -63,7 +65,7 @@ webserver: clojure and clojurescript
 
 tweetpuller: clojure
 
-tweetdeleter: bash only, I guess
+tweetdeleter: bash
 
 WEBSERVER:
 
@@ -74,3 +76,15 @@ We will be deploying using lein repl (inside a screen) not only because I like i
 TWEETPULLER:
 
 Again, lein repl in a screen is the way to start it.
+
+To run it, one needs to create folder "tweets" in the main project folder manually.
+
+TWEETDELETER:
+
+Just an endless loop bashscript. Running it in a screen too.
+
+To run it, one needs to create folder "tweets" in the main project folder manually.
+
+Has to be launched from the folder where it is.
+
+We will be keeping at any point of time 1000 files of 100 tweets each.
