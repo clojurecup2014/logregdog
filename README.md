@@ -53,11 +53,17 @@ I did a lot of simplifications to github.com/yogthos/reagent-example, removing l
 
 I finished the tweetpuller and tweetdeleter. To run them, one needs to create folder "tweets" in the main project folder manually.
 
+The tweetpuller and tweetdeleter were left to run on the server for hours and seem to perform very fine.
+
+Implemented the logistic regression classifier, including some small tests for it with a dummy example.
+
 DECISIONS:
 
 No state in the web server, all state is in the web client.
 
 All state in the web client is in one map in one atom.
+
+Please let's stick to as few namespaces as possible, as otherwise I get confused.
 
 COMPONENTS:
 

@@ -16,29 +16,7 @@
 
 
 
-;; math stuff here:
-
-(def labeleditems '(["1" "SHORT"], ["11" "LONG"], 
-                    ["2" "SHORT"], ["22" "LONG"], 
-                    ["3" "SHORT"], ["33" "LONG"], 
-                    ["4" "SHORT"], ["44" "LONG"], 
-                    ["5" "SHORT"], ["55" "LONG"], 
-                    ["6" "SHORT"], ["66" "LONG"]))
-
-(def maxbad 0.1)
-
-(defn perfect_feature [item] (* 0.1 (.length item)))
-
-(defn useless_feature [item] (* 0.1 (java.lang.Integer/parseInt (.substring item 0 1))))
-
-(def features [perfect_feature useless_feature])
-
-(def classifier {:one "LONG" 
-                 :zero "SHORT"
-                 :intercept 90.42694206220736
-                 :weights [-510.0369285921699 -29.78327218110678]
-                 :averages [0.15 0.35]
-                 })
+;; logistic regression classifier:
 
 (defn evalfeat [feature item] 
   (let [evaluation (try (feature item) (catch java.lang.Throwable t nil))]
@@ -72,7 +50,22 @@
   (- 1.0 (/ 1.0 (+ 1.0 (java.lang.Math/exp (* -1.0 (+ intercept weightedsum))))))
   )
 
-;; web stuff below:
+(defn predict [res zero one]
+  (if (< res 0.5) zero one)
+  )
+
+(defn classify [item features classifier maxbad]
+  (let [evals (evalallfeats features item)]
+    (if (maxbadcheck evals maxbad)
+      (predict 
+        (calcres (weightedsum (replacenils evals (:averages classifier)) (:weights classifier)) (:intercept classifier))
+      (:zero classifier) (:one classifier))
+      nil
+      )
+    )
+  )
+
+;; web stuff:
 
 (defn save-document [doc]
   (timbre/info (str doc))
@@ -160,5 +153,5 @@
   (start-server 3000))
 
 ;; start the server when the REPL is started
-;; (start-server 3000)
+(start-server 3000)
 
