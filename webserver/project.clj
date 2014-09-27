@@ -1,4 +1,4 @@
-(defproject reagent-example "0.1.0-SNAPSHOT"
+(defproject logregdogwebserver "0.1.0-SNAPSHOT"
 
   :dependencies [
                  ; clojure deps:

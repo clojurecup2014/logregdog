@@ -20,6 +20,8 @@ reagent
 
 cljs-ajax
 
+the Twitter API, namely the free "spritzer"
+
 
 DONE SO FAR:
 
