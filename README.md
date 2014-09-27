@@ -63,7 +63,7 @@ No state in the web server, all state is in the web client.
 
 All state in the web client is in one map in one atom.
 
-Please let's stick to as few namespaces as possible, as otherwise I get confused.
+Please let's stick to as few namespaces as possible, as otherwise I get confused. We are not aiming for code beauty here, not making a nicely structured lib.
 
 COMPONENTS:
 
@@ -79,7 +79,7 @@ To deploy it on the server: lein cljsbuild once; lein repl
 
 We are deploying using lein repl (inside a screen).
 
-For the webserver to build, the dependency on weka has to be installed manually. Copy the "weka" folder int he root of the project (yes, the one that is empty except for another "weka" folder in it) to ~/.m2/repository/
+For the webserver to build, the dependency on weka has to be installed manually. Copy the "weka" folder in the root of the project (yes, the one that is empty except for another "weka" folder in it) to ~/.m2/repository/
 
 For example this works (when one is in the root of the project): cp -R weka ~/.m2/repository/
 
