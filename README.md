@@ -10,13 +10,11 @@ github.com/yogthos/reagent-example (as template for the web server)
 
 http://bootswatch.com/simplex/bootstrap.min.css (might change)
 
-react.js
-
 lib-noir and its dependencies (compojure, ring, jetty, etc.)
 
 com.taoensso/timbre
 
-reagent
+reagent and react.js
 
 cljs-ajax
 
@@ -82,6 +80,12 @@ To deploy it on the server: lein cljsbuild once; lein repl
 We are deploying using lein repl (inside a screen).
 
 For the webserver to build, the dependency on weka has to be installed manually. Copy the "weka" folder int he root of the project (yes, the one that is empty except for another "weka" folder in it) to ~/.m2/repository/
+
+For example this works (when one is in the root of the project): cp -R weka ~/.m2/repository/
+
+This manual installation of weka dependency has been done on the server.
+
+Just for reference, the weka folder was created by running: mvn install:install-file -Dfile=weka-3.6.11.jar -DartifactId=weka -Dversion=3.6.11 -DgroupId=weka -Dpackaging=jar -DcreateChecksum=true
 
 TWEETPULLER:
 
