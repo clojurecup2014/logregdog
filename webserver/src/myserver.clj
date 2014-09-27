@@ -34,15 +34,43 @@
 (def features [perfect_feature useless_feature])
 
 (def classifier {:one "LONG" 
+                 :zero "SHORT"
                  :intercept 90.42694206220736
                  :weights [-510.0369285921699 -29.78327218110678]
                  :averages [0.15 0.35]
                  })
 
+(defn evalfeat [feature item] 
+  (let [evaluation (try (feature item) (catch java.lang.Throwable t nil))]
+    (if evaluation 
+      (if (< evaluation 0.0) 0.0  
+        (if (> evaluation 1.0) 1.0 evaluation)
+      )
+      nil)
+    )
+  )
 
+(defn evalallfeats [features item]
+  (map #(evalfeat % item) features)
+  )
 
+(defn maxbadcheck [evals maxbad]
+  (if (> 
+        (/ (+ 0.0 (reduce + (map #(if % 0 1) evals))) (count evals)) 
+        maxbad) nil evals)
+  )
 
+(defn replacenils [evals averages]
+  (map #(if (nth % 0) (nth % 0) (nth % 1)) (map vector evals averages))
+  )
 
+(defn weightedsum [evals weights]
+  (reduce + (map #(* (nth % 0) (nth % 1)) (map vector evals weights)))
+  )
+
+(defn calcres [weightedsum intercept]
+  (- 1.0 (/ 1.0 (+ 1.0 (java.lang.Math/exp (* -1.0 (+ intercept weightedsum))))))
+  )
 
 ;; web stuff below:
 
