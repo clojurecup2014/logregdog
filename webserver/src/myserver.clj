@@ -58,7 +58,8 @@
   (let [evals (evalallfeats features item)]
     (if (maxbadcheck evals maxbad)
       (predict 
-        (calcres (weightedsum (replacenils evals (:averages classifier)) (:weights classifier)) (:intercept classifier))
+        (calcres (weightedsum (replacenils evals (:averages classifier)) 
+                              (:weights classifier)) (:intercept classifier))
       (:zero classifier) (:one classifier))
       nil
       )
@@ -67,8 +68,10 @@
 
 ;; training of the logistic regression classifier:
 
-(defn train [labeled_items features maxbad]
-  (map #(nth % 0) labeled_items)
+(defn trainmatrix [labeled_items features maxbad]
+   (let [matrix (map #(evalallfeats features %) (map #(nth % 0) labeled_items))]
+     (filter #(maxbadcheck % maxbad) matrix)
+     )
   )
 
 ;; web stuff:

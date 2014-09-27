@@ -29,4 +29,8 @@
                     ["3" "SHORT"], ["33" "LONG"], 
                     ["4" "SHORT"], ["44" "LONG"], 
                     ["5" "SHORT"], ["55" "LONG"], 
-                    ["6" "SHORT"], ["66" "LONG"]))
+                    ["6" "SHORT"], ["66" "LONG"], ["a" "SHORT"]))
+
+(println (m/trainmatrix labeleditems features 0.1))
+(println (m/trainmatrix labeleditems features 0.9))
+
