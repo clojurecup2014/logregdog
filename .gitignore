@@ -1,0 +1,7 @@
+.metadata/
+*/.classpath
+*/.lein-repl-history
+*/.project
+*/bin/
+*/target/
+
