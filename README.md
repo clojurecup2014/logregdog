@@ -24,6 +24,8 @@ the Twitter API, namely the free "spritzer"
 
 twitter4j
 
+Weka (just the jar file, used as library)
+
 
 DONE SO FAR:
 
@@ -78,6 +80,8 @@ WEBSERVER:
 To deploy it on the server: lein cljsbuild once; lein repl
 
 We are deploying using lein repl (inside a screen).
+
+For the webserver to build, the dependency on weka has to be installed manually. Copy the "weka" folder int he root of the project (yes, the one that is empty except for another "weka" folder in it) to ~/.m2/repository/
 
 TWEETPULLER:
 

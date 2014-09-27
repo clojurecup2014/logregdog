@@ -65,6 +65,12 @@
     )
   )
 
+;; training of the logistic regression classifier:
+
+(defn train [labeled_items features maxbad]
+  (map #(nth % 0) labeled_items)
+  )
+
 ;; web stuff:
 
 (defn save-document [doc]

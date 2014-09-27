@@ -6,6 +6,7 @@
                  [lib-noir "0.8.8"] ; includes compojure and ring
                  [ring-server "0.3.1"] ; an additional ring lib that allows starting the server from the repl
                  [com.taoensso/timbre "3.2.1"] ; for logging
+                 [weka/weka "3.6.11"] ; this one needs to be installed manually, check readme
 
                  ; clojurescript deps:
                  [org.clojure/clojurescript "0.0-2280"]
