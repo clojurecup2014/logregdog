@@ -34,3 +34,11 @@
 (println (m/trainmatrix labeleditems features 0.1))
 (println (m/trainmatrix labeleditems features 0.9))
 
+(println (m/transpose(m/trainmatrix labeleditems features 0.1)))
+(println (m/transpose(m/trainmatrix labeleditems features 0.9)))
+
+(println (m/average '(1 9 11)))
+(println (m/removenils '(1 nil nil 9 11 nil)))
+
+(println (m/calcaverages(m/transpose(m/trainmatrix labeleditems features 0.1))))
+(println (m/calcaverages(m/transpose(m/trainmatrix labeleditems features 0.9))))

@@ -74,6 +74,20 @@
      )
   )
 
+(defn transpose [matrix] (apply map list matrix) )
+
+(defn removenils [list]
+  (filter (complement nil?) list)
+  )
+
+(defn average [list] 
+    (/ (+ 0.0 (reduce + list)) (count list))
+  )
+
+(defn calcaverages [transposed] 
+  (vector (map (comp average removenils) transposed))
+  )
+
 ;; web stuff:
 
 (defn save-document [doc]
