@@ -71,13 +71,15 @@ WEBSERVER:
 
 To deploy it on the server: lein cljsbuild once; lein repl
 
-We will be deploying using lein repl (inside a screen) not only because I like it, but also because people who are making uberjars have run into an interesting limitation from the server provider: max 100 builds.
+We are deploying using lein repl (inside a screen).
 
 TWEETPULLER:
 
 Again, lein repl in a screen is the way to start it.
 
 To run it, one needs to create folder "tweets" in the main project folder manually.
+
+Do not start it, because it is running on the server, and if it is running in several instances Twitter might block my API access!!!
 
 TWEETDELETER:
 

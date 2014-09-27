@@ -4,4 +4,6 @@
 */.project
 */bin/
 */target/
-
+tweets/
+*/.nrepl-port
+webserver/resources/public/js/
