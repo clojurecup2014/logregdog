@@ -1,5 +1,6 @@
 (ns myserver
-  (:require 
+  (:require
+   [clojure.string                  :as str]
                                         ; from lib-noir and its deps:
    [noir.response                   :as resp]
    [noir.util.middleware            :as middleware]
@@ -24,6 +25,20 @@
     (timbre/info (str p) "tweets:" (count ts))
     ts))
 
+(defn parse-fns [s]
+  (let [fns (->> (rest (str/split (str/trim s)
+                                  #"\(defn "))
+                 (map str/trim)
+                 (map #(str/replace % #"\n" " ")))
+        fns (map #(str "(defn " %) fns)
+        fns (map #(eval (read-string %)) fns)]
+    (into [] fns)))
+
+(defn train [{:keys [features labels] :as p}]
+  (let [fns (parse-fns features)]
+    (timbre/info (str p) "fns:" fns)
+    (bl/train-classifier fns labels)))
+
 (compojure/defroutes app-routes
   (compojure/GET "/" [] (slurp "app.html"))
   (compojure/POST "/save"
@@ -32,6 +47,9 @@
   (compojure/POST "/filtered-tweets"
                   {:keys [body-params]}
                   (resp/edn (tweets body-params)))
+  (compojure/POST "/train"
+                  {:keys [body-params]}
+                  (resp/edn (train body-params)))
   (route/resources "/")
   (route/not-found "Not Found"))
 

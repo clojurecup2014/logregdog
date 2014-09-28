@@ -11,12 +11,12 @@
 (defn evalfeat [feature item] 
   (let [evaluation (try (feature item) (catch java.lang.Throwable t nil))]
     (if evaluation 
-      (if (< evaluation 0.0) 0.0  
-        (if (> evaluation 1.0) 1.0 evaluation)
-      )
-      nil)
-    )
-  )
+      (if (< evaluation 0.0)
+        0.0  
+        (if (> evaluation 1.0)
+          1.0
+          (double evaluation)))
+      nil)))
 
 (defn evalallfeats [features item]
   (map #(evalfeat % item) features)

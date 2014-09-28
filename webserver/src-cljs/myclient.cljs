@@ -14,7 +14,10 @@
    {:filter "(defn condition [tweet] true)"
     :filter-applied? false
     :features "(defn feature_length [tweet]
-  (/ (count tweet) 140))"
+  (/ (count tweet) 140))
+
+(defn has_a [tweet]
+  (if (.contains tweet \"a\") 1 0))"
     :trained? false
     }))
 
@@ -67,7 +70,7 @@ bla bla bla
           [list-item id k v selections])]]])))
 
 (defn update-field [id id-old pre value]
-  (prn id (id-old @state) value)
+  ;;(prn id (id-old @state) value)
   (set-val! pre (= value (id-old @state)))
   (set-val! id value))
 
@@ -98,9 +101,15 @@ bla bla bla
 
 (defn train []
   (let [s @state]
-    (ajax/POST (str js/context "/save")
-               {:params (:filter s)
-                :handler (fn [_]
+    (ajax/POST (str js/context "/train")
+               {:params {:features (:features s)
+                         :labels (map (fn [[k v] t]
+                                        (list t v))
+                                      (:labels s)
+                                      (:tweets s))}
+                :handler (fn [r]
+                           (prn r)
+                           (set-val! :config r)
                            (set-val! :trained? true)
                            (update-filter (:filter-old s))
                            (set-val! :features-old (:features s)))})))
