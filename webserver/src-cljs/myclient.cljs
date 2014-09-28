@@ -63,6 +63,17 @@ bla bla bla
          (for [[k v] items]
           [list-item id k v selections])]]])))
 
+(defn update-field [id id-old pre value]
+  (prn id (id-old @state) value)
+  (set-val! pre (= value (id-old @state)))
+  (set-val! id value))
+
+(def update-filter
+  (partial update-field :filter :filter-old :filter-applied?))
+
+(def update-features
+  (partial update-field :features :features-old :trained?))
+
 (defn apply-filter []
   (let [ffun (:filter @state)]
     (ajax/POST (str js/context "/save")
@@ -78,18 +89,7 @@ bla bla bla
                 :handler (fn [_]
                            (swap! state assoc :trained? true)
                            (update-filter (:filter-old s))
-                           (swap! state assoc :features-old ffun))})))
-
-(defn update-field [id id-old pre value]
-  (prn id (id-old @state) value)
-  (set-val! pre (= value (id-old @state)))
-  (set-val! id value))
-
-(def update-filter
-  (partial update-field :filter :filter-old :filter-applied?))
-
-(def update-features
-  (partial update-field :features :features-old :trained?))
+                           (swap! state assoc :features-old (:features s)))})))
 
 (defn action-button [pre-applied text1 text2 apply-fn]
   (if (pre-applied @state)
@@ -98,9 +98,10 @@ bla bla bla
 
 (defn code [id on-change rows]
   [:textarea.form-control
-     {:rows rows
-      :on-change #(on-change (-> % .-target .-value))}
-     (id @state)])
+   {:rows rows
+    :value (id @state)
+    :on-change #(on-change (-> % .-target .-value))}
+   ])
 
 (defn debug []
   [:div
@@ -108,17 +109,15 @@ bla bla bla
 
 (defn home []
   [:div.page
-   [debug]
    [:div.page-header [:h1 "Logistic Regression Dog"]]
 
    [:div#row1
-    [:h2 "Condition Filter"]
+    [:h3 "Condition Filter"]
     [code :filter update-filter 8]
     [action-button :filter-applied? "Apply" "Applied" apply-filter]
     [:span.help-block (:filter help)]]
-
    [:div#row2
-    [:h2 "Features"]
+    [:h3 "Features"]
     [code :features update-features 10]
     [:span.help-block (:features help)]]
 
