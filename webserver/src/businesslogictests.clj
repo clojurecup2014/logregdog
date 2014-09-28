@@ -24,3 +24,4 @@
 
 (println classifier)
 
+(println (b/get-labeled-tweets #(.contains % "the") 10 features classifier))

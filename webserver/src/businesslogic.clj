@@ -20,8 +20,8 @@
     )
 )
 
-(def maxbad 0.55) ; because why not :)
 
+(def maxbad 0.55) ; because why not :)
 (defn removezeroes [labeled-tweets]
        (filter #( > (first (rest %)) 0 ) labeled-tweets)
        )
@@ -46,3 +46,15 @@
     
     )
   )
+
+(defn get-labeled-tweets [filter-fun max list-of-feature-funs classifier-config]
+  
+  (map #(list (first %)  (if (first (rest %))  (first (rest %)) 0  )  )
+  
+  (map
+     #(list % (l/classify % list-of-feature-funs classifier-config maxbad) )    
+     (filtered-tweets filter-fun false max)       
+  )
+   )
+  )
+
