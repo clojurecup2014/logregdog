@@ -1,6 +1,7 @@
 (ns logreg 
     (:import 
             (weka.core Attribute FastVector Instance Instances)
+            (weka.classifiers.functions Logistic)
   )
 )
 
@@ -43,12 +44,16 @@
   (if (< res 0.5) zero one)
   )
 
+(defn getnumev [evals averages weights intercept]
+  (calcres (weightedsum (replacenils evals averages) 
+                              weights) intercept)
+  )
+
 (defn classify [item features classifier maxbad]
   (let [evals (evalallfeats features item)]
     (if (maxbadcheck evals maxbad)
       (predict 
-        (calcres (weightedsum (replacenils evals (:averages classifier)) 
-                              (:weights classifier)) (:intercept classifier))
+        (getnumev evals (:averages classifier) (:weights classifier) (:intercept classifier))
       (:zero classifier) (:one classifier))
       nil
       )
@@ -77,12 +82,12 @@
   (vector (map (comp average removenils) transposed))
   )
 
-(defn cats [labeled_items] (list (set (map #(nth % 1) labeled_items))))
+(defn cats [labeled_items] (set (map #(nth % 1) labeled_items)))
 
 (defn catsAsFastVector [cats]
   (let [res (new FastVector)]
     (.addElement res (first cats))
-    (.addElement res (last cats))
+    (.addElement res (first (rest cats)))
     res)
   )
 
@@ -90,20 +95,67 @@
   (let [res (new FastVector)]
     (.addElement res (new Attribute "label" catsAsFastVector 0))
     (doseq [i (range (count features))]
-       (.addElement res (name (nth features i)) (+ i 1)))
+       (.addElement res (new Attribute
+         (str (+ i 1))
+         ;; (name (quote (nth features i))) 
+         (+ i 1))))
     res)
   )
 
-(defn nemtom [attributesAsFastVector matrix features labeled_items]
+(defn createinstances [attributesAsFastVector matrix features labeled_items]
   (let [instances (new Instances "" attributesAsFastVector 0)]
        (doseq [i (range (count matrix))]
             (let [instance (new Instance (+ 1 (count features)))]
                   (.setDataset instance instances)
                   (.setValue instance (.elementAt attributesAsFastVector 0)
                         (last (nth labeled_items i)))
-                  
-                  
-              )
+                  (let [itemdata (nth matrix i)]
+                           (doseq [j (range (count itemdata))]
+                                  (let [itemdatapiece (nth itemdata j)]
+                                          (if itemdatapiece
+                                                 (.setValue instance
+                                                   (.elementAt attributesAsFastVector (+ 1 j))
+                                                   itemdatapiece
+                                                   )
+                                            )
+                                    )
+                            )
+                    )
+              (.add instances instance))
        )
-    )
+    (.setClassIndex instances 0)
+    instances)
   )
+
+(defn getclassifier [instances] 
+     (let [logistic (new Logistic)]
+            (.setRidge logistic 1.0E-8)
+            (.setMaxIts logistic -1)
+            (.buildClassifier logistic instances)
+            logistic
+       )
+  )
+
+(defn get_coefs [labeled_items features maxbad]
+  (.coefficients (getclassifier 
+    (createinstances 
+            (attributesAsFastVector (catsAsFastVector (cats labeled_items)) features)
+            (trainmatrix labeled_items features maxbad)
+            features
+            labeled_items
+      )                         
+  ))
+  )
+
+(defn getintercept [coefs] (first (first coefs)))
+
+(defn getweights [coefs] (mapv  first (rest coefs)))
+
+(defn evtolabel [matrix averages weights intercept labeled_items]
+    (map vector (map #(getnumev % averages weights intercept) matrix) (map second labeled_items))
+  )
+
+(defn evsofcat [cat evtolabel]
+  (map first (filter #(.equals cat (first (rest %))) evtolabel))
+   )
+

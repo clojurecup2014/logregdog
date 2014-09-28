@@ -14,6 +14,7 @@
                  :intercept 90.42694206220736
                  :weights [-510.0369285921699 -29.78327218110678]
                  :averages [0.15 0.35]
+                 :precision 1.0
                  })
 
 (println (m/classify "1" features classifier 0.1))
@@ -44,3 +45,24 @@
 (println (m/calcaverages(m/transpose(m/trainmatrix labeleditems features 0.9))))
 
 (println (m/cats labeleditems))
+
+(println (m/getintercept (m/get_coefs labeleditems features 0.1)))
+(println (m/getweights (m/get_coefs labeleditems features 0.1)))
+
+(println (m/evtolabel (m/trainmatrix labeleditems features 0.1) 
+                   (m/calcaverages(m/transpose(m/trainmatrix labeleditems features 0.1)))
+                   (m/getweights (m/get_coefs labeleditems features 0.1))
+                    (m/getintercept (m/get_coefs labeleditems features 0.1))
+                    labeleditems))
+
+(println (m/evsofcat "SHORT" (m/evtolabel (m/trainmatrix labeleditems features 0.1) 
+                                      (m/calcaverages(m/transpose(m/trainmatrix labeleditems features 0.1)))
+                                      (m/getweights (m/get_coefs labeleditems features 0.1))
+                                       (m/getintercept (m/get_coefs labeleditems features 0.1))
+                                       labeleditems)))
+
+(println (m/evsofcat "LONG" (m/evtolabel (m/trainmatrix labeleditems features 0.1) 
+                                     (m/calcaverages(m/transpose(m/trainmatrix labeleditems features 0.1)))
+                                     (m/getweights (m/get_coefs labeleditems features 0.1))
+                                      (m/getintercept (m/get_coefs labeleditems features 0.1))
+                                      labeleditems)))
