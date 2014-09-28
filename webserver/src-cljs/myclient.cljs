@@ -233,7 +233,7 @@ quite verbose!
 
 (defn stats []
   [:div
-   (str (:config @state))])
+   (str (:weights (:config @state)))])
 
 (defn home []
   [:div.page
@@ -262,6 +262,13 @@ quite verbose!
       [label-list]
       [train-button :trained? "Train!" "Trained" train]]
      [:div#test.tab-pane
+              [:h6 "Your labeled data, together with your 
+features, were used to train an AI to separate the tweets
+into the two categories you imagined, automatically.
+Here you can try how it works on some freshly tweeted tweets.
+These tweets will also be subjected to the same condition filter
+as your tweets for training were: that is a very important concept
+in machine learning."]
       [:div.panel.panel.default
        [:div.panel-heading
         [:button.form-control.btn.btn-default {:on-click test-config} "Retest"]]
@@ -269,7 +276,13 @@ quite verbose!
         [result-list]]]
       ]
      [:div#stats.tab-pane
-      [:h6 "Statistics:"]
+      [:h6 "These below are the weights of your features, in the
+same order as the order of your features. Ignore if they are positive
+or negative. The important is their absolute value. The more the absolute
+value is bigger, the more a feature has been useful to the classifier.
+This gives you precious feedback. You might want to make more features
+similar to your good ones. Or you might want to see for bugs in a bad one
+of which you had high expectations."]
       [stats]]
      ]]])
 
