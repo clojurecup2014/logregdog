@@ -54,7 +54,10 @@ bla bla bla
       v]))
 
 (defn selection-list [id label & items]
-  (let [selections (->> items (map (fn [[k]] [k false])) (into {}) reagent/atom)]    
+  (let [selections (->> items
+                        (map (fn [[k]] [k false]))
+                        (into {})
+                        reagent/atom)]    
     (fn []
       [:div.row
        [:div.col-md-2 [:span label]]
@@ -74,26 +77,33 @@ bla bla bla
 (def update-features
   (partial update-field :features :features-old :trained?))
 
+(defn set-labels! [tweets]
+  (let [labels (zipmap (iterate inc 0)
+                       (take (count tweets) (repeat 0)))]
+    (set-val! :labels labels)))
+
 (defn apply-filter []
   (let [ffun (:filter @state)]
     (ajax/POST (str js/context "/filtered-tweets")
                {:params {:filter-fun ffun
                          :delayed false
-                         :max 30}
+                         :max 10}
                 :handler (fn [r]
                            ;; (prn r)
+                           (set-val! :trained? false)
                            (set-val! :filter-applied? true)
                            (set-val! :filter-old ffun)
-                           (set-val! :tweets r))})))
+                           (set-val! :tweets r)
+                           (set-labels! r))})))
 
 (defn train []
   (let [s @state]
     (ajax/POST (str js/context "/save")
                {:params (:filter s)
                 :handler (fn [_]
-                           (swap! state assoc :trained? true)
+                           (set-val! :trained? true)
                            (update-filter (:filter-old s))
-                           (swap! state assoc :features-old (:features s)))})))
+                           (set-val! :features-old (:features s)))})))
 
 (defn action-button [pre-applied text1 text2 apply-fn]
   (if (pre-applied @state)
@@ -107,14 +117,44 @@ bla bla bla
     :on-change #(on-change (-> % .-target .-value))}
    ])
 
-(defn debug []
+(defn selectors [t k v]
+  (letfn [(ha! [num]
+            (prn k num)
+            (swap! state assoc-in [:labels k] num))]
+    [:tr {:class (if (= v 1)
+                   "danger"
+                   (if (= v 2)
+                     "success"))}
+     [:td.text-center
+      [:div.btn-group {:data-toggle "buttons"}
+       [:label.btn {:on-click #(ha! 2)}
+        [:input {:type "radio" :name (str "opt" k)}] "G"]
+       [:label.btn.active {:on-click #(ha! 0)}
+        [:input {:type "radio" :name (str "opt" k) :checked 1}] "N"]
+       [:label.btn {:on-click #(ha! 1)}
+        [:input {:type "radio" :name (str "opt" k)}] "R"]
+       ]]
+     [:td t]]))
+
+(defn label-list []
+  (let [ts (:tweets @state)
+        ls (:labels @state)]
+    [:div.table-responsive
+     [:table.table.table-hover.table-striped
+      [:thead
+       [:tr [:th.text-center "Green None Red"] [:th "Tweet"]]]
+      [:tbody
+       (for [[t [k v]] (zipmap ts ls)]
+         [selectors t k v])]]]))
+
+(defn debug [k]
   [:div
-   (str @state)])
+   (str (k @state))])
 
 (defn home []
   [:div.page
    [:div.page-header [:h1 "Logistic Regression Dog"]]
-
+   [debug :labels]
    [:div#row1
     [:h3 "Condition Filter"]
     [code :filter update-filter 8]
@@ -132,7 +172,7 @@ bla bla bla
      [:li [:a {:href "#stats" :data-toggle "tab"} "Stats"]]]
     [:div.tab-content
      [:div#train.tab-pane.fade.in.active
-      "train here"
+      [label-list]
       [action-button :trained? "Train!" "Trained" train]
       ;; [text-input :first-name "First name"]
       ;; [text-input :last-name "Last name"]
