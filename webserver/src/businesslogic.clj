@@ -25,7 +25,8 @@
                     (map #(list (first %)
                                 (str (first (rest %))))
                          (removezeroes labeled-tweets)) 
-                    list-of-feature-funs maxbad)]
+                    list-of-feature-funs
+                    maxbad)]
     (conj 
      (conj classifier [:zero 
                        (java.lang.Integer/parseInt (:zero classifier))])
