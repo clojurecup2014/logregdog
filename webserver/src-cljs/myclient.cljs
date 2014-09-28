@@ -81,6 +81,7 @@ bla bla bla
                          :delayed false
                          :max 30}
                 :handler (fn [r]
+                           ;; (prn r)
                            (set-val! :filter-applied? true)
                            (set-val! :filter-old ffun)
                            (set-val! :tweets r))})))

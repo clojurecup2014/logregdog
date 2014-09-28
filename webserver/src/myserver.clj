@@ -1,27 +1,28 @@
 (ns myserver
   (:require 
-            ; from lib-noir and its deps:
-            [noir.response                   :as resp]
-            [noir.util.middleware            :as middleware]
-            [compojure.core                  :as compojure]
-            [compojure.route                 :as route]
-            [ring.middleware.file-info       :as ringfi]
-            [ring.middleware.file            :as ringf]
-
-            ; from other deps:
-            [ring.server.standalone          :as standalone]
-            [taoensso.timbre                 :as timbre]
-            [taoensso.timbre.appenders.rotor :as rotor]
-  )
-)
+                                        ; from lib-noir and its deps:
+   [noir.response                   :as resp]
+   [noir.util.middleware            :as middleware]
+   [compojure.core                  :as compojure]
+   [compojure.route                 :as route]
+   [ring.middleware.file-info       :as ringfi]
+   [ring.middleware.file            :as ringf]
+   
+                                        ; from other deps:
+   [ring.server.standalone          :as standalone]
+   [taoensso.timbre                 :as timbre]
+   [taoensso.timbre.appenders.rotor :as rotor]
+   [businesslogic :as bl]))
 
 (defn save-document [doc]
   (timbre/info (str doc))
   {:status "ok"})
 
 (defn tweets [p]
-  (timbre/info (str p))
-  (list "some tweet", "another tweet"))
+  (let [ff (eval (read-string (:filter-fun p)))
+        ts (bl/filtered-tweets ff (:delayed p) (:max p))]
+    (timbre/info (str p) "tweets:" (count ts))
+    ts))
 
 (compojure/defroutes app-routes
   (compojure/GET "/" [] (slurp "app.html"))
