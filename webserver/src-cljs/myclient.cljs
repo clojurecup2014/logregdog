@@ -110,6 +110,12 @@ It does not matter at all to me because I am colorblind anyway. ;)
                        (take (count tweets) (repeat 0)))]
     (set-val! :labels labels)))
 
+(defn enough-labels? []
+  (let [l (map second (:labels @state))
+        l (distinct (filter (complement zero?) l))]
+    (prn l)
+    (= 2 (count l))))
+
 (defn apply-filter []
   (let [ffun (:filter @state)]
     (ajax/POST (str js/context "/filtered-tweets")
@@ -141,8 +147,15 @@ It does not matter at all to me because I am colorblind anyway. ;)
 
 (defn action-button [pre-applied text1 text2 apply-fn]
   (if (pre-applied @state)
-      [:button.form-control.btn.btn-success {:disabled 1} text2]
-      [:button.form-control.btn.btn-primary {:on-click apply-fn} text1]))
+    [:button.form-control.btn.btn-success {:disabled 1} text2]
+    [:button.form-control.btn.btn-primary {:on-click apply-fn} text1]))
+
+(defn train-button [pre-applied text1 text2 apply-fn]
+  (if-not (pre-applied @state)
+    (if (enough-labels?)
+      [:button.form-control.btn.btn-primary {:on-click apply-fn} text1]
+      [:button.form-control.btn.btn-primary {:disabled 1} "Please label more data!"])
+    [:button.form-control.btn.btn-success {:disabled 1} text2]))
 
 (defn code [id on-change rows]
   [:textarea.form-control
@@ -154,8 +167,9 @@ It does not matter at all to me because I am colorblind anyway. ;)
 
 (defn selectors [t k v]
   (letfn [(ha! [num]
-            (prn k num)
-            (swap! state assoc-in [:labels k] num))]
+            ;; (prn k num)
+            (swap! state assoc-in [:labels k] num)
+            (set-val! :trained? false))]
     [:tr {:class (if (= v 1)
                    "danger"
                    (if (= v 2)
@@ -174,7 +188,7 @@ It does not matter at all to me because I am colorblind anyway. ;)
 (defn label-list []
   (let [ts (:tweets @state)
         ls (:labels @state)]
-    [:div.table-responsive
+    [:div.table-responsive.scrollme
      [:table.table.table-hover.table-striped
       [:thead
        [:tr [:th.text-center "Green None Red"] [:th "Tweet"]]]
@@ -188,19 +202,19 @@ It does not matter at all to me because I am colorblind anyway. ;)
 
 (defn home []
   [:div.page
-   [:div.page-header [:h1 
+   [:div.page-header [:h3
                         [:span {:style {:color "green"}} "log"]
                         [:span {:style {:color "red"}} "reg"]
                         [:span {:style {:color "black"}} "dog"]
                       ]]
    [debug :labels]
    [:div#row1
-    [:h3 "Condition Filter"]
+    [:h5 "Condition Filter"]
     [code :filter update-filter 8]
     [action-button :filter-applied? "Apply" "Applied" apply-filter]
     [:span.help-block (:filter help)]]
    [:div#row2
-    [:h3 "Features"]
+    [:h5 "Features"]
     [code :features update-features 10]
     [:span.help-block (:features help)]]
 
@@ -212,7 +226,7 @@ It does not matter at all to me because I am colorblind anyway. ;)
     [:div.tab-content
      [:div#train.tab-pane.fade.in.active
       [label-list]
-      [action-button :trained? "Train!" "Trained" train]
+      [train-button :trained? "Train!" "Trained" train]
       ;; [text-input :first-name "First name"]
       ;; [text-input :last-name "Last name"]
       ;; [selection-list :favorite-drinks "Favorite drinks"
