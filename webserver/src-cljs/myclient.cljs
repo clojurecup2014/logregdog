@@ -7,14 +7,15 @@
 ;; listen to the ClojureScript REPL
 (repl/connect "http://localhost:9000/repl")
 
+(enable-console-print!)
+
 (def state
   (reagent/atom
-   {:doc {}
-    :saved? false
-    :filter "(defn condition [tweet] true)"
+   {:filter "(defn condition [tweet] true)"
+    :filter-applied? false
     :features "(defn feature_length [tweet]
-  (/ (count tweet) 140))
-"
+  (/ (count tweet) 140))"
+    :trained? false
     }))
 
 (def help
@@ -29,12 +30,8 @@ bla bla bla
 "
    })
 
-(defn set-value! [id value]
-  (swap! state assoc :saved? false)
-  (swap! state assoc-in [:doc id] value))
-
-(defn get-value [id]
-  (get-in @state [:doc id]))
+(defn set-val! [id value]
+  (swap! state assoc id value))
 
 (defn row [label & body]
   [:div.row
@@ -66,61 +63,89 @@ bla bla bla
          (for [[k v] items]
           [list-item id k v selections])]]])))
 
-(defn save-doc []
-  (ajax/POST (str js/context "/save")
-        {:params (:doc @state)
-         :handler (fn [_] (swap! state assoc :saved? true))}))
+(defn apply-filter []
+  (let [ffun (:filter @state)]
+    (ajax/POST (str js/context "/save")
+               {:params (:filter @state)
+                :handler (fn [_]
+                           (swap! state assoc :filter-applied? true)
+                           (swap! state assoc :filter-old ffun))})))
+
+(defn train []
+  (let [s @state]
+    (ajax/POST (str js/context "/save")
+               {:params (:filter s)
+                :handler (fn [_]
+                           (swap! state assoc :trained? true)
+                           (update-filter (:filter-old s))
+                           (swap! state assoc :features-old ffun))})))
+
+(defn update-field [id id-old pre value]
+  (prn id (id-old @state) value)
+  (set-val! pre (= value (id-old @state)))
+  (set-val! id value))
+
+(def update-filter
+  (partial update-field :filter :filter-old :filter-applied?))
+
+(def update-features
+  (partial update-field :features :features-old :trained?))
+
+(defn action-button [pre-applied text1 text2 apply-fn]
+  (if (pre-applied @state)
+      [:button.form-control.btn.btn-success {:disabled 1} text2]
+      [:button.form-control.btn.btn-primary {:on-click apply-fn} text1]))
+
+(defn code [id on-change rows]
+  [:textarea.form-control
+     {:rows rows
+      :on-change #(on-change (-> % .-target .-value))}
+     (id @state)])
+
+(defn debug []
+  [:div
+   (str @state)])
 
 (defn home []
   [:div.page
+   [debug]
    [:div.page-header [:h1 "Logistic Regression Dog"]]
 
    [:div#row1
     [:h2 "Condition Filter"]
-    [:textarea.form-control
-     {;;:on-change #(set-value! id (-> % .-target .-value))
-      }
-     (:filter @state)]
+    [code :filter update-filter 8]
+    [action-button :filter-applied? "Apply" "Applied" apply-filter]
     [:span.help-block (:filter help)]]
 
    [:div#row2
     [:h2 "Features"]
-    [:textarea.form-control
-     {;;:on-change #(set-value! id (-> % .-target .-value))
-      }
-     (:features @state)]
+    [code :features update-features 10]
     [:span.help-block (:features help)]]
 
    [:div#row-right
     [:ul.nav.nav-tabs
-     [:li.active [:a {:href "#train"
-                      :data-toggle "tab"} "Train"]]
-     [:li [:a {:href "#test"
-               :data-toggle "tab"} "Test"]]
-     [:li [:a {:href "#stats"
-               :data-toggle "tab"} "Stats"]]
-     ]
+     [:li.active [:a {:href "#train" :data-toggle "tab"} "Train"]]
+     [:li [:a {:href "#test" :data-toggle "tab"} "Test"]]
+     [:li [:a {:href "#stats" :data-toggle "tab"} "Stats"]]]
     [:div.tab-content
      [:div#train.tab-pane.fade.in.active
       "train here"
-      [text-input :first-name "First name"]
-      [text-input :last-name "Last name"]
-      [selection-list :favorite-drinks "Favorite drinks"
-       [:coffee "Coffee"] [:beer "Beer"] [:crab-juice "Crab juice"]]
+      [action-button :trained? "Train!" "Trained" train]
+      ;; [text-input :first-name "First name"]
+      ;; [text-input :last-name "Last name"]
+      ;; [selection-list :favorite-drinks "Favorite drinks"
+      ;;  [:coffee "Coffee"] [:beer "Beer"] [:crab-juice "Crab juice"]]
       
-      (if (:saved? @state)
-        [:p "Saved"]
-        [:button {:type "submit"
-                  :class "btn btn-default"
-                  :on-click save-doc}
-         "Submit"])]
+      ;; (if (:saved? @state)
+      ;;   [:p "Saved"]
+      ;;   [:button {:type "submit"
+      ;;             :class "btn btn-default"
+      ;;             :on-click save-doc}
+      ;;    "Submit"])
+      ]
      [:div#test.tab-pane.fade "test adj jaksdhjk ahd "]
      [:div#stats.tab-pane.fade "stats ajkdh kjashd kjah"]
-     ]
-
-
-    
-    ]])
+     ]]])
 
 ;; start the app
 (reagent/render-component [home] (.getElementById js/document "app"))
