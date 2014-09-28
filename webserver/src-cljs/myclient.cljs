@@ -7,7 +7,27 @@
 ;; listen to the ClojureScript REPL
 (repl/connect "http://localhost:9000/repl")
 
-(def state (reagent/atom {:doc {} :saved? false}))
+(def state
+  (reagent/atom
+   {:doc {}
+    :saved? false
+    :filter "(defn condition [tweet] true)"
+    :features "(defn feature_length [tweet]
+  (/ (count tweet) 140))
+"
+    }))
+
+(def help
+  {:filter "This is filter function determining what tweets you get
+use it to get only english by cheching for \"the\".
+Default one lets all tweets.
+Takes a string and returns bool or nil.
+"
+   :features "These are some sample feature functions.
+They take string and return number between 0 and 1.
+bla bla bla
+"
+   })
 
 (defn set-value! [id value]
   (swap! state assoc :saved? false)
@@ -52,20 +72,55 @@
          :handler (fn [_] (swap! state assoc :saved? true))}))
 
 (defn home []
-  [:div
-    [:div.page-header [:h1 "Reagent Form"]]
+  [:div.page
+   [:div.page-header [:h1 "Logistic Regression Dog"]]
 
-    [text-input :first-name "First name"]
-    [text-input :last-name "Last name"]
-    [selection-list :favorite-drinks "Favorite drinks"
-     [:coffee "Coffee"] [:beer "Beer"] [:crab-juice "Crab juice"]]
+   [:div#row1
+    [:h2 "Condition Filter"]
+    [:textarea.form-control
+     {;;:on-change #(set-value! id (-> % .-target .-value))
+      }
+     (:filter @state)]
+    [:span.help-block (:filter help)]]
 
-   (if (:saved? @state)
-     [:p "Saved"]
-     [:button {:type "submit"
-              :class "btn btn-default"
-              :on-click save-doc}
-     "Submit"])])
+   [:div#row2
+    [:h2 "Features"]
+    [:textarea.form-control
+     {;;:on-change #(set-value! id (-> % .-target .-value))
+      }
+     (:features @state)]
+    [:span.help-block (:features help)]]
+
+   [:div#row-right
+    [:ul.nav.nav-tabs
+     [:li.active [:a {:href "#train"
+                      :data-toggle "tab"} "Train"]]
+     [:li [:a {:href "#test"
+               :data-toggle "tab"} "Test"]]
+     [:li [:a {:href "#stats"
+               :data-toggle "tab"} "Stats"]]
+     ]
+    [:div.tab-content
+     [:div#train.tab-pane.fade.in.active
+      "train here"
+      [text-input :first-name "First name"]
+      [text-input :last-name "Last name"]
+      [selection-list :favorite-drinks "Favorite drinks"
+       [:coffee "Coffee"] [:beer "Beer"] [:crab-juice "Crab juice"]]
+      
+      (if (:saved? @state)
+        [:p "Saved"]
+        [:button {:type "submit"
+                  :class "btn btn-default"
+                  :on-click save-doc}
+         "Submit"])]
+     [:div#test.tab-pane.fade "test adj jaksdhjk ahd "]
+     [:div#stats.tab-pane.fade "stats ajkdh kjashd kjah"]
+     ]
+
+
+    
+    ]])
 
 ;; start the app
 (reagent/render-component [home] (.getElementById js/document "app"))
