@@ -1,4 +1,8 @@
+THIS README WAS USED FOR COMMUNICATION WITHIN THE TEAM, DOES NOT HAVE MUCH VALUE OUTSIDE OF IT, AND HAS NOT BEEN UPDATED MUCH DURING THE SECOND DAY OF THE COMPETITION
+
+
 DEPENDENCIES:
+(also entered into the appropriate place in clojurecup.com)
 
 Fedora 20 server + git, screen, vim, iptables-services
 
