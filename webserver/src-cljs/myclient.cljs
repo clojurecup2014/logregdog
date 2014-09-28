@@ -11,25 +11,50 @@
 
 (def state
   (reagent/atom
-   {:filter "(defn condition [tweet] true)"
+   {:filter "; a tweet is just a string
+(defn condition [tweet] true)"
     :filter-applied? false
-    :features "(defn feature_length [tweet]
+    :features "; a feature takes a string
+; and has to return a number between 0 and 1
+; It can return nil if it fails to evaluate
+; on a particlar tweet
+(defn feature_length [tweet]
   (/ (count tweet) 140))
 
 (defn has_a [tweet]
-  (if (.contains tweet \"a\") 1 0))"
+  (if (.contains tweet \"a\") 1 0))
+
+; Please do not write functions that return
+; a constant.
+; Please use defn only, and do not embed it.
+; For each feature, it completely does not matter
+; for what it goes towards 0 and for what towards 1:
+; training will take care of that.
+; If a feature returns more than, we will make it 1.
+; Same if it returns less than 0."
     :trained? false
     }))
 
 (def help
-  {:filter "This is filter function determining what tweets you get
-use it to get only english by cheching for \"the\".
-Default one lets all tweets.
-Takes a string and returns bool or nil.
-"
-   :features "These are some sample feature functions.
-They take string and return number between 0 and 1.
-bla bla bla
+  {:filter "HELLO! I am the logregdog, your canine guide
+to logistic regression (a form of machine learning). I am
+just a dog, so there will be NO MATH! Start by pushing the
+button above to get some fresh tweets. If you want to narrow
+down what type of tweets you want to get, edit the filter
+function above. For example a dog simple way to get English
+tweets only is to check if they contain \"the\" :) Smart, eh?"
+   
+   :features "Logistic regression is all about splitting things
+into two groups, when it is hard to do, and you need many criteria
+to do it right. For example, lets say you want to separate tweets 
+into happy and sad. I would have one feature checking for happy
+smileys, one checking for sad smileys, one for words like \"bone\"
+and \"walk\", one for words like \"alone\" and \"cat\". And one checking
+how long the tweet is, because people unhappy with something can be
+quite verbose! After that you need to label the tweets on the right green
+if they are happy and red if they are not. Or the other way around.
+Or you can choose some completely different criteria for splitting tweets.
+It does not matter at all to me because I am colorblind anyway. ;)
 "
    })
 
