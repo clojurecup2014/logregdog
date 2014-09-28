@@ -252,7 +252,7 @@ quite verbose!
     [:h4 "Condition Filter"]
     [:div.help-block.gr (:filter help)]
     [code :filter update-filter 14 true]
-    [action-button :filter-applied? "Go, Fetch!" "Data Fetched" apply-filter]
+    [action-button :filter-applied? "Go, Fetch!" "Fetched" apply-filter]
     ]
    [:div#row2
     [:h4 "Features"]
