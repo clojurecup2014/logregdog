@@ -57,6 +57,8 @@ The tweetpuller and tweetdeleter were left to run on the server for hours and se
 
 Implemented the logistic regression classifier, including some small tests for it with a dummy example.
 
+The logic for logistic regression classifier training is work in progress.
+
 DECISIONS:
 
 No state in the web server, all state is in the web client.

@@ -12,7 +12,11 @@
             [ring.server.standalone          :as standalone]
             [taoensso.timbre                 :as timbre]
             [taoensso.timbre.appenders.rotor :as rotor]
-  ))
+  )
+  (:import 
+            (weka.core Attribute FastVector Instance Instances)
+  )
+)
 
 
 
@@ -86,6 +90,29 @@
 
 (defn calcaverages [transposed] 
   (vector (map (comp average removenils) transposed))
+  )
+
+(defn cats [labeled_items] (list (set (map #(nth % 1) labeled_items))))
+
+(defn catsAsFastVector [cats]
+  (let [res (new FastVector)]
+    (.addElement res (first cats))
+    (.addElement res (last cats))
+    res)
+  )
+
+(defn attributesAsFastVector [catsAsFastVector features]
+  (let [res (new FastVector)]
+    (.addElement res (new Attribute "label" catsAsFastVector 0))
+    (doseq [i (range (count features))]
+       (.addElement res (name (nth features i)) (+ i 1)))
+    res)
+  )
+
+(defn nemtom [attributesAsFastVector]
+  (let [instances (new Instances "" attributesAsFastVector 0)]
+       ()
+    )
   )
 
 ;; web stuff:

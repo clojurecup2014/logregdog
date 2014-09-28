@@ -42,3 +42,5 @@
 
 (println (m/calcaverages(m/transpose(m/trainmatrix labeleditems features 0.1))))
 (println (m/calcaverages(m/transpose(m/trainmatrix labeleditems features 0.9))))
+
+(println (m/cats labeleditems))
