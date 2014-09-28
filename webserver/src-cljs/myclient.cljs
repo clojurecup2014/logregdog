@@ -161,7 +161,10 @@ quite verbose!
   (if-not (pre-applied @state)
     (if (enough-labels?)
       [:button.form-control.btn.btn-primary {:on-click apply-fn} text1]
-      [:button.form-control.btn.btn-primary {:disabled 1} "Please label more data!"])
+      [:button.form-control.btn.btn-primary {:disabled 1}
+       (if (:filter-applied? @state)
+         "Please label more data!"
+         "Please fetch something!")])
     [:button.form-control.btn.btn-success {:disabled 1} text2]))
 
 (defn code [id on-change rows enabled]
@@ -245,7 +248,7 @@ quite verbose!
    [:div#row1
     [:h5 "Condition Filter"]
     [code :filter update-filter 14 true]
-    [action-button :filter-applied? "Apply" "Applied" apply-filter]
+    [action-button :filter-applied? "Go, Fetch!" "Applied" apply-filter]
     [:span.help-block (:filter help)]]
    [:div#row2
     [:h5 "Features"]
@@ -262,29 +265,37 @@ quite verbose!
       [label-list]
       [train-button :trained? "Train!" "Trained" train]]
      [:div#test.tab-pane
-              [:h6 "Your labeled data, together with your 
+      [:div.panel.panel.default
+       [:div.panel-heading
+        [:span.help-block "Your labeled data, together with your 
 features, were used to train an AI to separate the tweets
 into the two categories you imagined, automatically.
 Here you can try how it works on some freshly tweeted tweets.
 These tweets will also be subjected to the same condition filter
 as your tweets for training were: that is a very important concept
 in machine learning."]
-      [:div.panel.panel.default
-       [:div.panel-heading
-        [:button.form-control.btn.btn-default {:on-click test-config} "Retest"]]
+        [:button.form-control.btn.btn-default
+         {:type "button"
+          :on-click test-config
+          :data-toggle "tooltip"
+          :data-placement "bottom"
+          :data-original-title "qweqewqwe"}
+         "Test Again"]]
        [:div.panel-body
         [result-list]]]
       ]
      [:div#stats.tab-pane
-      [:h6 "These below are the weights of your features, in the
+      [:div.panel.panel.default
+       [:div.panel-heading
+        [:p "Below are the weights of your features, in the
 same order as the order of your features. Ignore if they are positive
 or negative. The important is their absolute value. The more the absolute
 value is bigger, the more a feature has been useful to the classifier.
 This gives you precious feedback. You might want to make more features
 similar to your good ones. Or you might want to see for bugs in a bad one
-of which you had high expectations."]
-      [stats]]
-     ]]])
+of which you had high expectations."]]
+       [:div.panel-body
+        [stats]]]]]]])
 
 ;; start the app
 (reagent/render-component [home] (.getElementById js/document "app"))
