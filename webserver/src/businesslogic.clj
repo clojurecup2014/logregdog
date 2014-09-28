@@ -10,7 +10,7 @@
                                         (catch java.lang.Throwable t '()))
                                                   good))]
                          
-                         (take max tweets)
+                         (take max (lazy-seq (filter filter-fun tweets)))
                          
                        )
                   )
@@ -18,5 +18,5 @@
     )
 )
 
-(println  (filtered-tweets nil true 3))
+
 
