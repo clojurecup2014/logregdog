@@ -127,11 +127,11 @@ bla bla bla
                      "success"))}
      [:td.text-center
       [:div.btn-group {:data-toggle "buttons"}
-       [:label.btn {:on-click #(ha! 2)}
+       [:label.btn {:on-click #(ha! 2) :title "Green"}
         [:input {:type "radio" :name (str "opt" k)}] "G"]
-       [:label.btn.active {:on-click #(ha! 0)}
+       [:label.btn.active {:on-click #(ha! 0) :title "Clear label"}
         [:input {:type "radio" :name (str "opt" k) :checked 1}] "N"]
-       [:label.btn {:on-click #(ha! 1)}
+       [:label.btn {:on-click #(ha! 1) :title "Red"}
         [:input {:type "radio" :name (str "opt" k)}] "R"]
        ]]
      [:td t]]))
