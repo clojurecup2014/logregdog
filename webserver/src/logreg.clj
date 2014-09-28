@@ -79,7 +79,7 @@
   )
 
 (defn calcaverages [transposed] 
-  (vector (map (comp average removenils) transposed))
+  (mapv (comp average removenils) transposed)
   )
 
 (defn cats [labeled_items] (set (map #(nth % 1) labeled_items)))
