@@ -1,4 +1,6 @@
-(ns businesslogic)
+(ns businesslogic
+    (:require [logreg :as l]          
+  ))
 
 (defn filtered-tweets [filter-fun delayed max]
     (let [files (reverse (sort (map #(java.lang.Long/parseLong (.getName %)) 
@@ -10,7 +12,7 @@
                                         (catch java.lang.Throwable t '()))
                                                   good))]
                          
-                         (take max tweets)
+                         (take max (lazy-seq (filter filter-fun tweets)))
                          
                        )
                   )
@@ -18,5 +20,41 @@
     )
 )
 
-(println  (filtered-tweets nil true 3))
+
+(def maxbad 0.55) ; because why not :)
+(defn removezeroes [labeled-tweets]
+       (filter #( > (first (rest %)) 0 ) labeled-tweets)
+       )
+
+(defn train-classifier [list-of-feature-funs labeled-tweets]
+  (let [classifier
+  
+  (l/clasconf 
+    (map #(list (first %)  (str (first (rest %)))   )  (removezeroes labeled-tweets)) 
+    list-of-feature-funs maxbad  )
+  ]
+     
+        (conj 
+          
+              (conj classifier [:zero 
+                      (java.lang.Integer/parseInt (:zero classifier))
+                      ])
+              
+              [:one 
+                      (java.lang.Integer/parseInt (:one classifier))
+                      ])
+    
+    )
+  )
+
+(defn get-labeled-tweets [filter-fun max list-of-feature-funs classifier-config]
+  
+  (map #(list (first %)  (if (first (rest %))  (first (rest %)) 0  )  )
+  
+  (map
+     #(list % (l/classify % list-of-feature-funs classifier-config maxbad) )    
+     (filtered-tweets filter-fun false max)       
+  )
+   )
+  )
 
