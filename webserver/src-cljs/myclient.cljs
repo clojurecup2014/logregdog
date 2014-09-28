@@ -12,9 +12,11 @@
 (def state
   (reagent/atom
    {:filter "; a tweet is just a string
+
 (defn condition [tweet] true)"
     :filter-applied? false
-    :features "; return between 0 and 1
+    :features "; functions should return value between 0 and 1
+
 (defn feature_length [tweet]
   (/ (count tweet) 140))
 
@@ -28,6 +30,7 @@
 ; and for what towards 1:
 ; training will take care of that."
     :trained? false
+    :features-enabled false
     }))
 
 (def help
@@ -120,7 +123,8 @@ quite verbose!
                            (set-val! :filter-applied? true)
                            (set-val! :filter-old ffun)
                            (set-val! :tweets r)
-                           (set-labels! r))})))
+                           (set-labels! r)
+                           (set-val! :features-enabled true))})))
 
 (defn test-config []
   (let [s @state]
@@ -160,12 +164,13 @@ quite verbose!
       [:button.form-control.btn.btn-primary {:disabled 1} "Please label more data!"])
     [:button.form-control.btn.btn-success {:disabled 1} text2]))
 
-(defn code [id on-change rows]
+(defn code [id on-change rows enabled]
   [:textarea.form-control
-   {:id "code"
+   {:id id
     :rows rows
     :value (id @state)
-    :on-change #(on-change (-> % .-target .-value))}
+    :on-change #(on-change (-> % .-target .-value))
+    :disabled (not enabled)}
    ])
 
 (defn selector [t k v]
@@ -194,10 +199,19 @@ quite verbose!
     [:div.table-responsive.scrollme
      [:table.table.table-hover.table-striped.table-condensed
       [:thead
-       [:tr [:th.text-center.col-md-2 "Green None Red"] [:th "Tweet"]]]
+       [:tr
+        [:th.text-center.col-md-2
+         [:span.text-success "Green "]
+         " None "
+         [:span.text-danger " Red"]]
+        [:th "Tweet"]]]
       [:tbody
-       (for [[t [k v]] (zipmap ts ls)]
-         [selector t k v])]]]))
+       (if (= 0 (count ts))
+         [:tr {:rowspan 5}
+          [:td.text-center {:colspan 2}
+           [:div.text-center [:h2 [:span.help-block "No Data"]]]]]
+         (for [[t [k v]] (zipmap ts ls)]
+           [selector t k v]))]]]))
 
 (defn result-row [t v]
   [:tr {:class (if (= v 1)
@@ -230,12 +244,12 @@ quite verbose!
                       ]]
    [:div#row1
     [:h5 "Condition Filter"]
-    [code :filter update-filter 8]
+    [code :filter update-filter 14 true]
     [action-button :filter-applied? "Apply" "Applied" apply-filter]
     [:span.help-block (:filter help)]]
    [:div#row2
     [:h5 "Features"]
-    [code :features update-features 10]
+    [code :features update-features 16 (:features-enabled @state)]
     [:span.help-block (:features help)]]
 
    [:div#row-right
@@ -246,19 +260,7 @@ quite verbose!
     [:div.tab-content
      [:div#train.tab-pane.in.active
       [label-list]
-      [train-button :trained? "Train!" "Trained" train]
-      ;; [text-input :first-name "First name"]
-      ;; [text-input :last-name "Last name"]
-      ;; [selection-list :favorite-drinks "Favorite drinks"
-      ;;  [:coffee "Coffee"] [:beer "Beer"] [:crab-juice "Crab juice"]]
-      
-      ;; (if (:saved? @state)
-      ;;   [:p "Saved"]
-      ;;   [:button {:type "submit"
-      ;;             :class "btn btn-default"
-      ;;             :on-click save-doc}
-      ;;    "Submit"])
-      ]
+      [train-button :trained? "Train!" "Trained" train]]
      [:div#test.tab-pane
       [:div.panel.panel.default
        [:div.panel-heading
