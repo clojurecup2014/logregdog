@@ -159,3 +159,38 @@
   (map first (filter #(.equals cat (first (rest %))) evtolabel))
    )
 
+(defn avtocat [cats evtolabel]
+     (map #(vector % (average (evsofcat % evtolabel))) cats)
+  )
+
+(defn zeroandone [avtocat]
+  (if 
+    (< (first (rest (first avtocat))) (first (rest (first (rest avtocat)))))
+    [(first (first avtocat)) (first (first (rest avtocat)))]
+    [(first (first (rest avtocat))) (first (first avtocat))]
+    )
+  )
+
+(defn clasconf [labeled_items features maxbad]
+ (let [coefs (get_coefs labeled_items features maxbad)]
+      (let [matrix (trainmatrix labeled_items features maxbad)]
+     (let  [averages (calcaverages(transpose matrix))]
+         (let  [weights (getweights coefs)]
+        (let   [intercept (getintercept coefs)]
+           (let  [evtolabels (evtolabel matrix averages weights intercept labeled_items)]
+                (let [zando (zeroandone(avtocat (cats labeled_items) evtolabels))]
+                     {:one (first (rest zando)) 
+                      :zero (first zando) 
+                      :intercept intercept
+                      :weights weights
+                      :averages averages
+                      }
+                 )
+           ))))
+       )
+  )
+)
+
+; TODO 1: calc precision
+; TODO 2: handle constant feature
+; TODO 3: do not calc cats twice
