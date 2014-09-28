@@ -1,5 +1,5 @@
-(ns myhackytests
-  (:require [myserver :as m]          
+(ns logregtests
+  (:require [logreg :as m]          
   ))
 
 
