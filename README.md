@@ -1,25 +1,20 @@
 DEPENDENCIES:
 
 Fedora 20 server + git, screen, vim, iptables-services
-
 nginx (as reverse proxy)
-
 Clojure and ClojureScript, Oracle JDK 1.7, Google Closure Compiler, Leiningen
-
 github.com/yogthos/reagent-example (as template for the web server)
 
 http://bootswatch.com/simplex/bootstrap.min.css (might change)
+http://jquery.com/ 
+http://getbootstrap.com/
 
 lib-noir and its dependencies (compojure, ring, jetty, etc.)
-
 com.taoensso/timbre
-
 reagent and react.js
-
 cljs-ajax
 
 the Twitter API, namely the free "spritzer"
-
 twitter4j
 
 Weka (just the jar file, used as library)

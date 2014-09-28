@@ -76,11 +76,14 @@ bla bla bla
 
 (defn apply-filter []
   (let [ffun (:filter @state)]
-    (ajax/POST (str js/context "/save")
-               {:params (:filter @state)
-                :handler (fn [_]
-                           (swap! state assoc :filter-applied? true)
-                           (swap! state assoc :filter-old ffun))})))
+    (ajax/POST (str js/context "/filtered-tweets")
+               {:params {:filter-fun ffun
+                         :delayed false
+                         :max 30}
+                :handler (fn [r]
+                           (set-val! :filter-applied? true)
+                           (set-val! :filter-old ffun)
+                           (set-val! :tweets r))})))
 
 (defn train []
   (let [s @state]

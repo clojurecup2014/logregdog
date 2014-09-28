@@ -19,9 +19,18 @@
   (timbre/info (str doc))
   {:status "ok"})
 
+(defn tweets [p]
+  (timbre/info (str p))
+  (list "some tweet", "another tweet"))
+
 (compojure/defroutes app-routes
   (compojure/GET "/" [] (slurp "app.html"))
-  (compojure/POST "/save" {:keys [body-params]} (resp/edn (save-document body-params)))
+  (compojure/POST "/save"
+                  {:keys [body-params]}
+                  (resp/edn (save-document body-params)))
+  (compojure/POST "/filtered-tweets"
+                  {:keys [body-params]}
+                  (resp/edn (tweets body-params)))
   (route/resources "/")
   (route/not-found "Not Found"))
 
