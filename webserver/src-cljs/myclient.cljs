@@ -34,13 +34,13 @@
     }))
 
 (def help
-  {:filter "HELLO! I am the logregdog, your canine guide
+  {:filter [:span [:strong "HELLO!"] " I am the logregdog, your canine guide
 to logistic regression (a form of machine learning). I am
 just a dog, so there will be NO MATH! Start by pushing the
 button above to get some fresh tweets. If you want to narrow
 down what type of tweets you want to get, edit the filter
 function above. For example a dog simple way to get English
-tweets only is to check if they contain \"the\" :) Smart, eh?"
+tweets only is to check if they contain the :) Smart, eh?"]
    
    :features "Logistic regression is all about splitting things
 into two groups, when it is hard to do, and you need many criteria
@@ -116,7 +116,7 @@ quite verbose!
     (ajax/POST (str js/context "/filtered-tweets")
                {:params {:filter-fun ffun
                          :delayed true
-                         :max 10}
+                         :max 20}
                 :handler (fn [r]
                            ;; (prn r)
                            (set-val! :trained? false)
@@ -153,9 +153,11 @@ quite verbose!
 
 
 (defn action-button [pre-applied text1 text2 apply-fn]
-  (if (pre-applied @state)
-    [:button.form-control.btn.btn-success {:disabled 1} text2]
-    [:button.form-control.btn.btn-primary {:on-click apply-fn} text1]))
+  [:div
+   {:style {:padding-top "1.3em"}}
+   (if (pre-applied @state)
+     [:button.form-control.btn.btn-success {:disabled 1} text2]
+     [:button.form-control.btn.btn-primary {:on-click apply-fn} text1])])
 
 (defn train-button [pre-applied text1 text2 apply-fn]
   (if-not (pre-applied @state)
@@ -170,6 +172,7 @@ quite verbose!
 (defn code [id on-change rows enabled]
   [:textarea.form-control
    {:id id
+    :style {:margin-top "1em"}
     :rows rows
     :value (id @state)
     :on-change #(on-change (-> % .-target .-value))
@@ -224,7 +227,7 @@ quite verbose!
    [:td t]])
 
 (defn result-list []
-  [:div.table-responsive.scrollme
+  [:div.table-responsive.scrollme2
    [:table.table.table-hover.table-striped.table-condensed
     [:tbody
      (for [[t v] (:tested @state)]
@@ -246,14 +249,16 @@ quite verbose!
                         [:span {:style {:color "black"}} "dog"]
                       ]]
    [:div#row1
-    [:h5 "Condition Filter"]
+    [:h4 "Condition Filter"]
+    [:div.help-block.gr (:filter help)]
     [code :filter update-filter 14 true]
-    [action-button :filter-applied? "Go, Fetch!" "Applied" apply-filter]
-    [:span.help-block (:filter help)]]
+    [action-button :filter-applied? "Go, Fetch!" "Fetched" apply-filter]
+    ]
    [:div#row2
-    [:h5 "Features"]
+    [:h4 "Features"]
+    [:div.help-block.gr (:features help)]
     [code :features update-features 16 (:features-enabled @state)]
-    [:span.help-block (:features help)]]
+    ]
 
    [:div#row-right
     [:ul.nav.nav-tabs

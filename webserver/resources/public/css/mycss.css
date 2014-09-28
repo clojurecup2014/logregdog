@@ -7,4 +7,6 @@ background-position: right top;
 #row1 {}
 #row2 {}
 #row-right {width: auto; overflow: hidden;}
-.scrollme {height: 400px; overflow:scroll;}
+.scrollme {height: 38.1em; overflow:scroll;}
+.scrollme2 {height: 27.7em; overflow:scroll;}
+.gr{color: #aaa}
