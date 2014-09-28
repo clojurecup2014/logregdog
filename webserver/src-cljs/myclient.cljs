@@ -116,7 +116,7 @@ quite verbose!
     (ajax/POST (str js/context "/filtered-tweets")
                {:params {:filter-fun ffun
                          :delayed true
-                         :max 10}
+                         :max 20}
                 :handler (fn [r]
                            ;; (prn r)
                            (set-val! :trained? false)
@@ -227,7 +227,7 @@ quite verbose!
    [:td t]])
 
 (defn result-list []
-  [:div.table-responsive.scrollme
+  [:div.table-responsive.scrollme2
    [:table.table.table-hover.table-striped.table-condensed
     [:tbody
      (for [[t v] (:tested @state)]
@@ -252,7 +252,7 @@ quite verbose!
     [:h4 "Condition Filter"]
     [:div.help-block.gr (:filter help)]
     [code :filter update-filter 14 true]
-    [action-button :filter-applied? "Go, Fetch!" "Applied" apply-filter]
+    [action-button :filter-applied? "Go, Fetch!" "Data Fetched" apply-filter]
     ]
    [:div#row2
     [:h4 "Features"]
