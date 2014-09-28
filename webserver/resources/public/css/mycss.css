@@ -1,6 +1,10 @@
-body { background-color:#F8F8FF !important; }
+body {  background-image: url('/img/dog.png'); 
+background-repeat:no-repeat; 
+background-position: right top; 
+    background-size: 100px;}
 .page {height: auto; overflow:hidden;}
-#row1, #row2 {width: 280px; float:left; padding-right: 10px;}
+#row1, #row2 {width: 250px; float:left; padding-right: 10px;}
 #row1 {}
 #row2 {}
 #row-right {width: auto; overflow: hidden;}
+.scrollme {height: 400px; overflow:scroll;}

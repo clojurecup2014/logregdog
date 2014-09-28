@@ -11,22 +11,22 @@
 (defn evalfeat [feature item] 
   (let [evaluation (try (feature item) (catch java.lang.Throwable t nil))]
     (if evaluation 
-      (if (< evaluation 0.0) 0.0  
-        (if (> evaluation 1.0) 1.0 evaluation)
-      )
-      nil)
-    )
-  )
+      (if (< evaluation 0.0)
+        0.0  
+        (if (> evaluation 1.0)
+          1.0
+          (double evaluation)))
+      nil)))
 
 (defn evalallfeats [features item]
   (map #(evalfeat % item) features)
   )
 
 (defn maxbadcheck [evals maxbad]
-  (if (> 
-        (/ (+ 0.0 (reduce + (map #(if % 0 1) evals))) (count evals)) 
-        maxbad) nil evals)
-  )
+  (if (> (/ (+ 0.0 (reduce + (map #(if % 0 1) evals))) (count evals)) 
+         maxbad)
+    nil
+    evals))
 
 (defn replacenils [evals averages]
   (map #(if (nth % 0) (nth % 0) (nth % 1)) (map vector evals averages))
@@ -41,32 +41,28 @@
   )
 
 (defn predict [res zero one]
-  (if (< res 0.5) zero one)
-  )
+  (if (< res 0.5) zero one))
 
 (defn getnumev [evals averages weights intercept]
   (calcres (weightedsum (replacenils evals averages) 
-                              weights) intercept)
+                        weights)
+           intercept)
   )
 
 (defn classify [item features classifier maxbad]
   (let [evals (evalallfeats features item)]
     (if (maxbadcheck evals maxbad)
       (predict 
-        (getnumev evals (:averages classifier) (:weights classifier) (:intercept classifier))
-      (:zero classifier) (:one classifier))
-      nil
-      )
-    )
-  )
+       (getnumev evals (:averages classifier) (:weights classifier) (:intercept classifier))
+       (:zero classifier)
+       (:one classifier))
+      nil)))
 
 ;; training of the logistic regression classifier:
 
 (defn trainmatrix [labeled_items features maxbad]
-   (let [matrix (map #(evalallfeats features %) (map #(nth % 0) labeled_items))]
-     (filter #(maxbadcheck % maxbad) matrix)
-     )
-  )
+  (let [matrix (map #(evalallfeats features %) (map #(nth % 0) labeled_items))]
+     (filter #(maxbadcheck % maxbad) matrix)))
 
 (defn transpose [matrix] (apply map list matrix) )
 
@@ -79,97 +75,82 @@
   )
 
 (defn calcaverages [transposed] 
-  (vector (map (comp average removenils) transposed))
-  )
+  (mapv (comp average removenils)
+        transposed))
 
-(defn cats [labeled_items] (set (map #(nth % 1) labeled_items)))
+(defn cats [labeled_items]
+  (set (map #(nth % 1) labeled_items)))
 
 (defn catsAsFastVector [cats]
   (let [res (new FastVector)]
     (.addElement res (first cats))
     (.addElement res (first (rest cats)))
-    res)
-  )
+    res))
 
 (defn attributesAsFastVector [catsAsFastVector features]
   (let [res (new FastVector)]
     (.addElement res (new Attribute "label" catsAsFastVector 0))
     (doseq [i (range (count features))]
-       (.addElement res (new Attribute
-         (str (+ i 1))
-         ;; (name (quote (nth features i))) 
-         (+ i 1))))
-    res)
-  )
+      (.addElement res (new Attribute
+                            (str (+ i 1))
+                            ;; (name (quote (nth features i))) 
+                            (+ i 1))))
+    res))
 
 (defn createinstances [attributesAsFastVector matrix features labeled_items]
   (let [instances (new Instances "" attributesAsFastVector 0)]
-       (doseq [i (range (count matrix))]
-            (let [instance (new Instance (+ 1 (count features)))]
-                  (.setDataset instance instances)
-                  (.setValue instance (.elementAt attributesAsFastVector 0)
-                        (last (nth labeled_items i)))
-                  (let [itemdata (nth matrix i)]
-                           (doseq [j (range (count itemdata))]
-                                  (let [itemdatapiece (nth itemdata j)]
-                                          (if itemdatapiece
-                                                 (.setValue instance
-                                                   (.elementAt attributesAsFastVector (+ 1 j))
-                                                   itemdatapiece
-                                                   )
-                                            )
-                                    )
-                            )
-                    )
-              (.add instances instance))
-       )
+    (doseq [i (range (count matrix))]
+      (let [instance (new Instance (+ 1 (count features)))]
+        (.setDataset instance instances)
+        (.setValue instance
+                   (.elementAt attributesAsFastVector 0)
+                   (last (nth labeled_items i)))
+        (let [itemdata (nth matrix i)]
+          (doseq [j (range (count itemdata))]
+            (let [itemdatapiece (nth itemdata j)]
+              (if itemdatapiece
+                (.setValue instance
+                           (.elementAt attributesAsFastVector (+ 1 j))
+                           itemdatapiece)))))
+        (.add instances instance)))
     (.setClassIndex instances 0)
-    instances)
-  )
+    instances))
 
 (defn getclassifier [instances] 
-     (let [logistic (new Logistic)]
-            (.setRidge logistic 1.0E-8)
-            (.setMaxIts logistic -1)
-            (.buildClassifier logistic instances)
-            logistic
-       )
-  )
+  (let [logistic (new Logistic)]
+    (.setRidge logistic 1.0E-8)
+    (.setMaxIts logistic -1)
+    (.buildClassifier logistic instances)
+    logistic))
 
 (defn get_coefs [labeled_items features maxbad]
   (.coefficients (getclassifier 
-    (createinstances 
-            (attributesAsFastVector (catsAsFastVector (cats labeled_items)) features)
-            (trainmatrix labeled_items features maxbad)
-            features
-            labeled_items
-      )                         
-  ))
-  )
+                  (createinstances 
+                   (attributesAsFastVector (catsAsFastVector (cats labeled_items)) features)
+                   (trainmatrix labeled_items features maxbad)
+                   features
+                   labeled_items))))
 
 (defn getintercept [coefs] (first (first coefs)))
 
 (defn getweights [coefs] (mapv  first (rest coefs)))
 
 (defn evtolabel [matrix averages weights intercept labeled_items]
-    (map vector (map #(getnumev % averages weights intercept) matrix) (map second labeled_items))
-  )
+  (map vector (map #(getnumev % averages weights intercept) matrix) (map second labeled_items)))
 
 (defn evsofcat [cat evtolabel]
-  (map first (filter #(.equals cat (first (rest %))) evtolabel))
-   )
+  (map first (filter #(.equals cat (first (rest %))) evtolabel)))
 
 (defn avtocat [cats evtolabel]
-     (map #(vector % (average (evsofcat % evtolabel))) cats)
-  )
+  (map #(vector % (average (evsofcat % evtolabel))) cats))
 
 (defn zeroandone [avtocat]
-  (if 
-    (< (first (rest (first avtocat))) (first (rest (first (rest avtocat)))))
-    [(first (first avtocat)) (first (first (rest avtocat)))]
-    [(first (first (rest avtocat))) (first (first avtocat))]
-    )
-  )
+  (if (< (first (rest (first avtocat)))
+         (first (rest (first (rest avtocat)))))
+    [(first (first avtocat))
+     (first (first (rest avtocat)))]
+    [(first (first (rest avtocat)))
+     (first (first avtocat))]))
 
 (defn clasconf [labeled_items features maxbad]
  (let [coefs (get_coefs labeled_items features maxbad)]
