@@ -14,24 +14,19 @@
    {:filter "; a tweet is just a string
 (defn condition [tweet] true)"
     :filter-applied? false
-    :features "; a feature takes a string
-; and has to return a number between 0 and 1
-; It can return nil if it fails to evaluate
-; on a particlar tweet
+    :features "; return between 0 and 1
 (defn feature_length [tweet]
   (/ (count tweet) 140))
 
 (defn has_a [tweet]
   (if (.contains tweet \"a\") 1 0))
 
-; Please do not write functions that return
-; a constant.
-; Please use defn only, and do not embed it.
-; For each feature, it completely does not matter
-; for what it goes towards 0 and for what towards 1:
-; training will take care of that.
-; If a feature returns more than, we will make it 1.
-; Same if it returns less than 0."
+; Please use defn only!
+; For each feature, 
+; it completely does not matter
+; for what it goes towards 0 
+; and for what towards 1:
+; training will take care of that."
     :trained? false
     }))
 
@@ -51,10 +46,7 @@ into happy and sad. I would have one feature checking for happy
 smileys, one checking for sad smileys, one for words like \"bone\"
 and \"walk\", one for words like \"alone\" and \"cat\". And one checking
 how long the tweet is, because people unhappy with something can be
-quite verbose! After that you need to label the tweets on the right green
-if they are happy and red if they are not. Or the other way around.
-Or you can choose some completely different criteria for splitting tweets.
-It does not matter at all to me because I am colorblind anyway. ;)
+quite verbose!
 "
    })
 
@@ -245,5 +237,3 @@ It does not matter at all to me because I am colorblind anyway. ;)
 
 ;; start the app
 (reagent/render-component [home] (.getElementById js/document "app"))
-
-
