@@ -19,8 +19,11 @@
   (timbre/info (str doc))
   {:status "ok"})
 
+(defn parse-fn [s]
+  (eval (read-string s)))
+
 (defn tweets [p]
-  (let [ff (eval (read-string (:filter-fun p)))
+  (let [ff (parse-fn (:filter-fun p))
         ts (bl/filtered-tweets ff (:delayed p) (:max p))]
     (timbre/info (str p) "tweets:" (count ts))
     ts))
@@ -31,13 +34,19 @@
                  (map str/trim)
                  (map #(str/replace % #"\n" " ")))
         fns (map #(str "(defn " %) fns)
-        fns (map #(eval (read-string %)) fns)]
+        fns (map parse-fn fns)]
     (into [] fns)))
 
 (defn train [{:keys [features labels] :as p}]
   (let [fns (parse-fns features)]
     (timbre/info (str p) "fns:" fns)
     (bl/train-classifier fns labels)))
+
+(defn test-config [{:keys [filter-fun max features config] :as p}]
+  (let [feats (parse-fns features)
+        filt (parse-fn filter-fun)]
+    (timbre/info (str p) "filter" filt "feats:" feats)
+    (bl/get-labeled-tweets filt max feats config)))
 
 (compojure/defroutes app-routes
   (compojure/GET "/" [] (slurp "app.html"))
@@ -50,6 +59,9 @@
   (compojure/POST "/train"
                   {:keys [body-params]}
                   (resp/edn (train body-params)))
+  (compojure/POST "/test"
+                  {:keys [body-params]}
+                  (resp/edn (test-config body-params)))
   (route/resources "/")
   (route/not-found "Not Found"))
 

@@ -37,7 +37,7 @@
               (if (first (rest %))
                 (first (rest %))
                 0))
-  (map
-   #(list % (l/classify % list-of-feature-funs classifier-config maxbad))
-   (filtered-tweets filter-fun false max))))
+       (map
+        #(list % (l/classify % list-of-feature-funs classifier-config maxbad))
+        (filtered-tweets filter-fun false max))))
 

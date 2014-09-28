@@ -112,7 +112,7 @@ quite verbose!
   (let [ffun (:filter @state)]
     (ajax/POST (str js/context "/filtered-tweets")
                {:params {:filter-fun ffun
-                         :delayed false
+                         :delayed true
                          :max 10}
                 :handler (fn [r]
                            ;; (prn r)
@@ -122,6 +122,16 @@ quite verbose!
                            (set-val! :tweets r)
                            (set-labels! r))})))
 
+(defn test-config []
+  (let [s @state]
+    (ajax/POST (str js/context "/test")
+               {:params {:features (:features s)
+                         :filter-fun (:filter s)
+                         :max 30
+                         :config (:config s)}
+                :handler (fn [r]
+                           ;; (prn r)
+                           (set-val! :tested r))})))
 (defn train []
   (let [s @state]
     (ajax/POST (str js/context "/train")
@@ -131,11 +141,12 @@ quite verbose!
                                       (:labels s)
                                       (:tweets s))}
                 :handler (fn [r]
-                           (prn r)
                            (set-val! :config r)
                            (set-val! :trained? true)
                            (update-filter (:filter-old s))
-                           (set-val! :features-old (:features s)))})))
+                           (set-val! :features-old (:features s))
+                           (test-config))})))
+
 
 (defn action-button [pre-applied text1 text2 apply-fn]
   (if (pre-applied @state)
@@ -157,7 +168,7 @@ quite verbose!
     :on-change #(on-change (-> % .-target .-value))}
    ])
 
-(defn selectors [t k v]
+(defn selector [t k v]
   (letfn [(ha! [num]
             ;; (prn k num)
             (swap! state assoc-in [:labels k] num)
@@ -181,16 +192,34 @@ quite verbose!
   (let [ts (:tweets @state)
         ls (:labels @state)]
     [:div.table-responsive.scrollme
-     [:table.table.table-hover.table-striped
+     [:table.table.table-hover.table-striped.table-condensed
       [:thead
-       [:tr [:th.text-center "Green None Red"] [:th "Tweet"]]]
+       [:tr [:th.text-center.col-md-2 "Green None Red"] [:th "Tweet"]]]
       [:tbody
        (for [[t [k v]] (zipmap ts ls)]
-         [selectors t k v])]]]))
+         [selector t k v])]]]))
+
+(defn result-row [t v]
+  [:tr {:class (if (= v 1)
+                 "danger"
+                 (if (= v 2)
+                   "success"))}
+   [:td t]])
+
+(defn result-list []
+  [:div.table-responsive.scrollme
+   [:table.table.table-hover.table-striped.table-condensed
+    [:tbody
+     (for [[t v] (:tested @state)]
+       [result-row t v])]]])
 
 (defn debug [k]
   [:div
    (str (k @state))])
+
+(defn stats []
+  [:div
+   (str (:config @state))])
 
 (defn home []
   [:div.page
@@ -199,7 +228,6 @@ quite verbose!
                         [:span {:style {:color "red"}} "reg"]
                         [:span {:style {:color "black"}} "dog"]
                       ]]
-   [debug :labels]
    [:div#row1
     [:h5 "Condition Filter"]
     [code :filter update-filter 8]
@@ -216,7 +244,7 @@ quite verbose!
      [:li [:a {:href "#test" :data-toggle "tab"} "Test"]]
      [:li [:a {:href "#stats" :data-toggle "tab"} "Stats"]]]
     [:div.tab-content
-     [:div#train.tab-pane.fade.in.active
+     [:div#train.tab-pane.in.active
       [label-list]
       [train-button :trained? "Train!" "Trained" train]
       ;; [text-input :first-name "First name"]
@@ -231,8 +259,16 @@ quite verbose!
       ;;             :on-click save-doc}
       ;;    "Submit"])
       ]
-     [:div#test.tab-pane.fade "test adj jaksdhjk ahd "]
-     [:div#stats.tab-pane.fade "stats ajkdh kjashd kjah"]
+     [:div#test.tab-pane
+      [:div.panel.panel.default
+       [:div.panel-heading
+        [:button.form-control.btn.btn-default {:on-click test-config} "Retest"]]
+       [:div.panel-body
+        [result-list]]]
+      ]
+     [:div#stats.tab-pane
+      [:h6 "Statistics:"]
+      [stats]]
      ]]])
 
 ;; start the app
