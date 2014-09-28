@@ -5,7 +5,7 @@ nginx (as reverse proxy)
 Clojure and ClojureScript, Oracle JDK 1.7, Google Closure Compiler, Leiningen
 github.com/yogthos/reagent-example (as template for the web server)
 
-http://bootswatch.com/simplex/bootstrap.min.css (might change)
+http://bootswatch.com/simplex/bootstrap.min.css
 http://jquery.com/ 
 http://getbootstrap.com/
 
@@ -18,6 +18,8 @@ the Twitter API, namely the free "spritzer"
 twitter4j
 
 Weka (just the jar file, used as library)
+
+http://www.vecteezy.com/vector-art/70002-cartoon-dogs
 
 
 DONE SO FAR:
