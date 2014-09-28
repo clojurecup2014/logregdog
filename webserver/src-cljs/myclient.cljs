@@ -112,7 +112,8 @@ bla bla bla
 
 (defn code [id on-change rows]
   [:textarea.form-control
-   {:rows rows
+   {:id "code"
+    :rows rows
     :value (id @state)
     :on-change #(on-change (-> % .-target .-value))}
    ])
@@ -153,7 +154,11 @@ bla bla bla
 
 (defn home []
   [:div.page
-   [:div.page-header [:h1 "Logistic Regression Dog"]]
+   [:div.page-header [:h1 
+                        [:span {:style {:color "green"}} "log"]
+                        [:span {:style {:color "red"}} "reg"]
+                        [:span {:style {:color "black"}} "dog"]
+                      ]]
    [debug :labels]
    [:div#row1
     [:h3 "Condition Filter"]
@@ -192,4 +197,5 @@ bla bla bla
 
 ;; start the app
 (reagent/render-component [home] (.getElementById js/document "app"))
+
 
